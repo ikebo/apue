@@ -31,7 +31,7 @@ void print_family(struct addrinfo *aip) {
 }
 
 void print_type(struct addrinfo *aip) {
-    print(" type ");
+    printf(" type ");
     switch (aip->ai_socktype) {
         case SOCK_STREAM:
             printf("stream");
@@ -57,7 +57,7 @@ void print_protocol(struct addrinfo *aip) {
         printf("default");
         break;
     case IPPROTO_TCP:
-        print("TCP");
+        printf("TCP");
         break;
     case IPPROTO_UDP:
         printf("UDP");
@@ -110,5 +110,28 @@ int main(int argc, char *argv[]) {
     }
     hint.ai_flags = AI_CANONNAME;
     hint.ai_family = 0;
-
+    hint.ai_socktype = 0;
+    hint.ai_protocol = 0;
+    hint.ai_addrlen = 0;
+    hint.ai_canonname = NULL;
+    hint.ai_addr = NULL;
+    hint.ai_next = NULL;
+    if ((err = getaddrinfo(argv[1], argv[2], &hint, &ailist)) != 0) {
+        err_quit("getaddrinfo error: %s", gai_strerror(err));
+    }
+    for (aip = ailist; aip != NULL; aip = aip->ai_next) {
+        print_flags(aip);
+        print_family(aip);
+        print_type(aip);
+        print_protocol(aip);
+        printf("\n\thost %s", aip->ai_canonname?aip->ai_canonname:"-");
+        if (aip->ai_family == AF_INET) {
+            sinp = (struct sockaddr_in *)aip->ai_addr;
+            addr = inet_ntop(AF_INET, &sinp->sin_addr, abuf, INET_ADDRSTRLEN);
+            printf(" address %s", addr?addr:"unknown");
+            printf(" port %d", ntohs(sinp->sin_port));
+        }
+        printf("\n");
+    }
+    exit(0);
 }
