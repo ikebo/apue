@@ -1,9 +1,12 @@
 INC=-I../include # no need
 # VPATH = ../include
 
-PROGS: error.o signal.o clrfl.o setfl.o ptell.o lockreg.o setfd.o
+PROGS: error.o signal.o clrfl.o setfl.o ptell.o lockreg.o setfd.o spipe.o
 
 all: $(PROGS)
+
+spipe.o: spipe.c
+	clang -Wall $(INC) -c spipe.c
 
 lockreg.o: lockreg.c
 	clang -Wall $(INC) -c lockreg.c
